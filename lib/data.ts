@@ -1,6 +1,7 @@
 import { Post, PostInput } from '@/types'
 
 // Mock data - replace with database later
+// eslint-disable-next-line prefer-const
 let posts: Post[] = [
   {
     id: '1',

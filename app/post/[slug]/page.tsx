@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
+import DOMPurify from 'isomorphic-dompurify'
 import Navbar from '@/components/Navbar'
 import { getPost, getPosts } from '@/lib/data'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -139,7 +140,7 @@ export default async function PostPage({ params }: PostPageProps) {
               textDecoration: 'underline',
             }
           }}
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
       </Container>
     </Box>

@@ -47,25 +47,24 @@ export default function DashboardPage() {
   const cancelRef = useRef<HTMLButtonElement>(null)
   const toast = useToast()
 
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch('/api/posts')
-      const data = await response.json()
-      setPosts(data)
-    } catch {
-      toast({
-        title: 'Error fetching posts',
-        status: 'error',
-        duration: 3000,
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/posts')
+        const data = await response.json()
+        setPosts(data)
+      } catch {
+        toast({
+          title: 'Error fetching posts',
+          status: 'error',
+          duration: 3000,
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
     fetchPosts()
-  }, [])
+  }, [toast])
 
   const handleDeleteClick = (post: Post) => {
     setPostToDelete(post)

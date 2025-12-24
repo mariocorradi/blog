@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
@@ -59,6 +60,13 @@ export default function RichTextEditor({
       },
     },
   })
+
+  // Sync content when prop changes (for edit mode)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content)
+    }
+  }, [editor, content])
 
   if (!editor) {
     return null
@@ -241,7 +249,7 @@ export default function RichTextEditor({
               color: 'blue.600',
               textDecoration: 'underline',
             },
-            '& .is-editor-empty:first-child::before': {
+            '& .is-editor-empty:first-of-type::before': {
               content: 'attr(data-placeholder)',
               color: 'gray.400',
               float: 'left',

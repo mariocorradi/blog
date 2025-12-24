@@ -14,11 +14,12 @@ import Navbar from '@/components/Navbar'
 import PostCard from '@/components/PostCard'
 import { getPosts, getCategories } from '@/lib/data'
 import CategoryFilter from '@/components/CategoryFilter'
+import { Post } from '@/types'
 
 export default function Home({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const params = use(searchParams)
   const [mounted, setMounted] = useState(false)
-  const [data, setData] = useState<{ posts: any[], categories: any[] }>({ posts: [], categories: [] })
+  const [data, setData] = useState<{ posts: Post[], categories: string[] }>({ posts: [], categories: [] })
 
   // Handle the "Mounted" state
   useEffect(() => {

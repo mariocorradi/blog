@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Box,
@@ -13,7 +13,6 @@ import {
   HStack,
   useToast,
   Select,
-  Text,
 } from '@chakra-ui/react'
 import { FiSave, FiArrowLeft } from 'react-icons/fi'
 import NextLink from 'next/link'
