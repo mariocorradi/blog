@@ -1,39 +1,73 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import {
   Box,
   Container,
   Heading,
   Text,
-  Badge,
   Button,
+  Spinner,
+  Center,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
+import { useParams, notFound } from 'next/navigation'
 import DOMPurify from 'isomorphic-dompurify'
 import Navbar from '@/components/Navbar'
-import { getPost, getPosts } from '@/lib/data'
+import CategoryBadge from '@/components/CategoryBadge'
+import { Post } from '@/types'
 import { FiArrowLeft } from 'react-icons/fi'
 
-interface PostPageProps {
-  params: Promise<{ slug: string }>
-}
+export default function PostPage() {
+  const params = useParams()
+  const slug = params.slug as string
+  const [post, setPost] = useState<Post | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-// Pre-render paths for better performance (Static Site Generation)
-export async function generateStaticParams() {
-  const posts = await getPosts()
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
-}
+  // Dark mode colors
+  const bgColor = useColorModeValue('white', 'gray.900')
+  const headingColor = useColorModeValue('gray.900', 'white')
+  const textColor = useColorModeValue('gray.700', 'gray.300')
+  const dateColor = useColorModeValue('gray.500', 'gray.400')
+  const buttonColor = useColorModeValue('gray.600', 'gray.400')
+  const buttonHoverColor = useColorModeValue('gray.900', 'white')
+  const buttonHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const blockquoteBorder = useColorModeValue('gray.200', 'gray.600')
+  const blockquoteColor = useColorModeValue('gray.600', 'gray.400')
+  const linkColor = useColorModeValue('blue.600', 'blue.400')
 
-export default async function PostPage({ params }: PostPageProps) {
-  const { slug } = await params
-  const post = await getPost(slug)
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`/api/posts`)
+        const posts = await response.json()
+        const foundPost = posts.find((p: Post) => p.slug === slug)
+        setPost(foundPost || null)
+      } catch {
+        setPost(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchPost()
+  }, [slug])
+
+  if (isLoading) {
+    return (
+      <Box minH="100vh" bg={bgColor}>
+        <Navbar />
+        <Center py={20}>
+          <Spinner size="xl" color="purple.500" />
+        </Center>
+      </Box>
+    )
+  }
 
   if (!post) {
     notFound()
   }
 
-  // Format date safely for the server-render phase
   const dateString = new Date(post.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -41,19 +75,19 @@ export default async function PostPage({ params }: PostPageProps) {
   })
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg={bgColor} transition="background-color 0.2s">
       <Navbar />
 
       <Container maxW="container.md" py={12}>
-        {/* Fixed: Wrapped Button in Link instead of passing function via 'as' prop */}
         <NextLink href="/" style={{ textDecoration: 'none' }}>
           <Button
             variant="ghost"
             size="sm"
             leftIcon={<FiArrowLeft />}
             mb={8}
-            color="gray.600"
-            _hover={{ color: 'gray.900', bg: 'gray.100' }}
+            color={buttonColor}
+            _hover={{ color: buttonHoverColor, bg: buttonHoverBg }}
+            transition="all 0.2s"
           >
             Back to posts
           </Button>
@@ -61,31 +95,22 @@ export default async function PostPage({ params }: PostPageProps) {
 
         {/* Post Header */}
         <Box mb={8}>
-          <Badge
-            colorScheme="gray"
-            fontSize="xs"
-            fontWeight="500"
-            mb={4}
-            px={2}
-            py={0.5}
-            borderRadius="full"
-          >
-            {post.category}
-          </Badge>
+          <CategoryBadge category={post.category} size="md" />
 
           <Heading
             size="2xl"
             fontWeight="700"
             mb={4}
+            mt={4}
             letterSpacing="-0.03em"
             lineHeight="1.2"
-            color="gray.900"
+            color={headingColor}
+            transition="color 0.2s"
           >
             {post.title}
           </Heading>
 
-          {/* suppressHydrationWarning prevents errors if user/server locales differ */}
-          <Text fontSize="sm" color="gray.500" suppressHydrationWarning>
+          <Text fontSize="sm" color={dateColor} suppressHydrationWarning>
             {dateString}
           </Text>
         </Box>
@@ -95,7 +120,7 @@ export default async function PostPage({ params }: PostPageProps) {
           className="prose"
           sx={{
             'p': {
-              color: 'gray.700',
+              color: textColor,
               lineHeight: '1.8',
               mb: 4,
               fontSize: 'md',
@@ -105,38 +130,38 @@ export default async function PostPage({ params }: PostPageProps) {
               fontSize: 'xl',
               mt: 8,
               mb: 4,
-              color: 'gray.900',
+              color: headingColor,
             },
             'h3': {
               fontWeight: '600',
               fontSize: 'lg',
               mt: 6,
               mb: 3,
-              color: 'gray.900',
+              color: headingColor,
             },
             'ul, ol': {
               pl: 6,
               mb: 4,
-              color: 'gray.700',
+              color: textColor,
             },
             'li': {
               mb: 2,
             },
             'strong': {
               fontWeight: '600',
-              color: 'gray.900',
+              color: headingColor,
             },
             'blockquote': {
               borderLeft: '4px solid',
-              borderColor: 'gray.200',
+              borderColor: blockquoteBorder,
               pl: 4,
               py: 1,
               my: 4,
               fontStyle: 'italic',
-              color: 'gray.600',
+              color: blockquoteColor,
             },
             'a': {
-              color: 'blue.600',
+              color: linkColor,
               textDecoration: 'underline',
             }
           }}

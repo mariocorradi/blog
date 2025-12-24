@@ -1,11 +1,18 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Box, HStack, IconButton, Divider } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  IconButton,
+  Divider,
+  Skeleton,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import {
   FiBold,
   FiItalic,
@@ -33,6 +40,16 @@ export default function RichTextEditor({
   onChange,
   placeholder = 'Start writing...',
 }: RichTextEditorProps) {
+  const hasInitializedContent = useRef(false)
+
+  // Dark mode colors
+  const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const bgColor = useColorModeValue('white', 'gray.800')
+  const toolbarBg = useColorModeValue('gray.50', 'gray.700')
+  const blockquoteColor = useColorModeValue('gray.600', 'gray.400')
+  const codeBg = useColorModeValue('gray.100', 'gray.700')
+  const placeholderColor = useColorModeValue('gray.400', 'gray.500')
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -51,6 +68,7 @@ export default function RichTextEditor({
       }),
     ],
     content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
@@ -62,14 +80,39 @@ export default function RichTextEditor({
   })
 
   // Sync content when prop changes (for edit mode)
+  // Use ref to prevent infinite loops and handle async loading
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content)
+    if (editor && content) {
+      // Only set content if it's different and we haven't initialized yet,
+      // OR if content changed after initialization (e.g., async load)
+      const currentContent = editor.getHTML()
+      if (content !== currentContent && content !== '<p></p>') {
+        editor.commands.setContent(content)
+        hasInitializedContent.current = true
+      }
     }
   }, [editor, content])
 
+  // Reset ref when editor changes (unmount/remount)
+  useEffect(() => {
+    return () => {
+      hasInitializedContent.current = false
+    }
+  }, [])
+
   if (!editor) {
-    return null
+    return (
+      <Box border="1px" borderColor={borderColor} borderRadius="lg" bg={bgColor}>
+        <Box borderBottom="1px" borderColor={borderColor} p={2} bg={toolbarBg} borderTopRadius="lg">
+          <Skeleton height="32px" width="300px" />
+        </Box>
+        <Box p={4}>
+          <Skeleton height="20px" mb={3} />
+          <Skeleton height="20px" mb={3} width="80%" />
+          <Skeleton height="20px" width="60%" />
+        </Box>
+      </Box>
+    )
   }
 
   const setLink = () => {
@@ -89,13 +132,13 @@ export default function RichTextEditor({
   }
 
   return (
-    <Box border="1px" borderColor="gray.200" borderRadius="lg" bg="white">
+    <Box border="1px" borderColor={borderColor} borderRadius="lg" bg={bgColor} transition="all 0.2s">
       {/* Toolbar */}
       <Box
         borderBottom="1px"
-        borderColor="gray.200"
+        borderColor={borderColor}
         p={2}
-        bg="gray.50"
+        bg={toolbarBg}
         borderTopRadius="lg"
       >
         <HStack spacing={1} flexWrap="wrap">
@@ -231,27 +274,27 @@ export default function RichTextEditor({
             },
             '& blockquote': {
               borderLeft: '3px solid',
-              borderColor: 'gray.300',
+              borderColor: borderColor,
               pl: 4,
               py: 1,
               my: 4,
               fontStyle: 'italic',
-              color: 'gray.600',
+              color: blockquoteColor,
             },
             '& code': {
-              bg: 'gray.100',
+              bg: codeBg,
               px: 1,
               borderRadius: 'sm',
               fontFamily: 'mono',
               fontSize: 'sm',
             },
             '& a': {
-              color: 'blue.600',
+              color: 'blue.500',
               textDecoration: 'underline',
             },
             '& .is-editor-empty:first-of-type::before': {
               content: 'attr(data-placeholder)',
-              color: 'gray.400',
+              color: placeholderColor,
               float: 'left',
               height: 0,
               pointerEvents: 'none',

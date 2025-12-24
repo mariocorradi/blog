@@ -1,4 +1,4 @@
-'use client' // 1. Must be a client component for 'mounted' logic
+'use client'
 
 import {
   Box,
@@ -7,11 +7,13 @@ import {
   Text,
   SimpleGrid,
   Center,
-  Spinner
+  Spinner,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useState, useEffect, use } from 'react'
 import Navbar from '@/components/Navbar'
 import PostCard from '@/components/PostCard'
+import PostCardSkeleton from '@/components/PostCardSkeleton'
 import { getPosts, getCategories } from '@/lib/data'
 import CategoryFilter from '@/components/CategoryFilter'
 import { Post } from '@/types'
@@ -19,30 +21,34 @@ import { Post } from '@/types'
 export default function Home({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const params = use(searchParams)
   const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState<{ posts: Post[], categories: string[] }>({ posts: [], categories: [] })
 
-  // Handle the "Mounted" state
+  // Dark mode colors
+  const bgColor = useColorModeValue('gray.50', 'gray.900')
+  const headingColor = useColorModeValue('gray.900', 'white')
+  const textColor = useColorModeValue('gray.600', 'gray.400')
+
   useEffect(() => {
     setMounted(true)
 
-    // Load data once mounted
     const loadData = async () => {
       const allPosts = await getPosts()
       const categories = await getCategories()
       setData({ posts: allPosts, categories })
+      setIsLoading(false)
     }
     loadData()
   }, [])
 
   if (!mounted) {
     return (
-      <Center h="100vh">
+      <Center h="100vh" bg={bgColor}>
         <Spinner size="xl" color="purple.500" />
       </Center>
     )
   }
 
-  // Logic for filtering
   const selectedCategory = params?.category
   const filteredPosts = selectedCategory
     ? data.posts.filter(
@@ -51,7 +57,7 @@ export default function Home({ searchParams }: { searchParams: Promise<{ categor
     : data.posts
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg={bgColor} transition="background-color 0.2s">
       <Navbar />
 
       <Container maxW="container.lg" py={12}>
@@ -61,11 +67,12 @@ export default function Home({ searchParams }: { searchParams: Promise<{ categor
             fontWeight="700"
             mb={4}
             letterSpacing="-0.03em"
-            color="gray.900"
+            color={headingColor}
+            transition="color 0.2s"
           >
             Welcome
           </Heading>
-          <Text color="gray.600" fontSize="lg" maxW="md" mx="auto">
+          <Text color={textColor} fontSize="lg" maxW="md" mx="auto" transition="color 0.2s">
             Thoughts, stories, and ideas from my life.
           </Text>
         </Box>
@@ -75,7 +82,13 @@ export default function Home({ searchParams }: { searchParams: Promise<{ categor
           selectedCategory={selectedCategory}
         />
 
-        {filteredPosts.length > 0 ? (
+        {isLoading ? (
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+            {[1, 2, 3, 4].map((i) => (
+              <PostCardSkeleton key={i} />
+            ))}
+          </SimpleGrid>
+        ) : filteredPosts.length > 0 ? (
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
             {filteredPosts.map((post) => (
               <PostCard key={post.id} post={post} />
@@ -83,7 +96,7 @@ export default function Home({ searchParams }: { searchParams: Promise<{ categor
           </SimpleGrid>
         ) : (
           <Box textAlign="center" py={12}>
-            <Text color="gray.500">No posts found.</Text>
+            <Text color={textColor}>No posts found.</Text>
           </Box>
         )}
       </Container>

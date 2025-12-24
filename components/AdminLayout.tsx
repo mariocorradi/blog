@@ -12,10 +12,12 @@ import {
   Link as ChakraLink,
   Spinner,
   Center,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { FiLogOut, FiPlus, FiList } from 'react-icons/fi'
 import { useAuth } from './AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -25,6 +27,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
 
+  // Dark mode colors
+  const bgColor = useColorModeValue('gray.50', 'gray.900')
+  const navBgColor = useColorModeValue('white', 'gray.800')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const headingColor = useColorModeValue('gray.900', 'white')
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/admin')
@@ -33,8 +41,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (isLoading) {
     return (
-      <Center minH="100vh">
-        <Spinner size="lg" color="gray.400" />
+      <Center minH="100vh" bg={bgColor}>
+        <Spinner size="lg" color="purple.500" />
       </Center>
     )
   }
@@ -49,16 +57,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg={bgColor} transition="background-color 0.2s">
       {/* Admin Navbar */}
       <Box
         as="nav"
         borderBottom="1px"
-        borderColor="gray.200"
-        bg="white"
+        borderColor={borderColor}
+        bg={navBgColor}
         position="sticky"
         top={0}
         zIndex={100}
+        transition="all 0.2s"
       >
         <Container maxW="container.xl" py={4}>
           <Flex justify="space-between" align="center">
@@ -67,7 +76,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <Heading
                   size="sm"
                   fontWeight="600"
-                  color="gray.900"
+                  color={headingColor}
+                  transition="color 0.2s"
                 >
                   Admin
                 </Heading>
@@ -99,6 +109,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <Button as={NextLink} href="/" variant="ghost" size="sm">
                 View Blog
               </Button>
+              <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"

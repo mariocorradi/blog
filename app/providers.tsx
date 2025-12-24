@@ -1,8 +1,16 @@
 'use client'
 
-import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import { mode } from '@chakra-ui/theme-tools'
+import type { StyleFunctionProps } from '@chakra-ui/styled-system'
+
+const config: ThemeConfig = {
+  initialColorMode: 'system',
+  useSystemColorMode: true,
+}
 
 const theme = extendTheme({
+  config,
   fonts: {
     heading: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     body: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
@@ -22,12 +30,16 @@ const theme = extendTheme({
     },
   },
   styles: {
-    global: {
-      body: {
-        bg: 'white',
-        color: 'gray.800',
+    global: (props: StyleFunctionProps) => ({
+      'html, body': {
+        bg: mode('white', 'gray.900')(props),
+        color: mode('gray.800', 'gray.100')(props),
+        transition: 'background-color 0.2s ease-in-out, color 0.2s ease-in-out',
       },
-    },
+      '*': {
+        borderColor: mode('gray.200', 'gray.700')(props),
+      },
+    }),
   },
   components: {
     Button: {
