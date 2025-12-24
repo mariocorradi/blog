@@ -16,7 +16,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { FiSave, FiArrowLeft } from 'react-icons/fi'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import AdminLayout from '@/components/AdminLayout'
 import RichTextEditor from '@/components/RichTextEditor'
 
@@ -99,11 +99,9 @@ export default function NewPostPage() {
     <AdminLayout>
       <Box maxW="container.md" mx="auto">
         <HStack justify="space-between" mb={6}>
-          <Link href="/admin/dashboard" passHref>
-            <Button variant="ghost" leftIcon={<FiArrowLeft />}>
-              Back
-            </Button>
-          </Link>
+          <Button as={NextLink} href="/admin/dashboard" variant="ghost" leftIcon={<FiArrowLeft />}>
+            Back
+          </Button>
           <Button
             colorScheme="gray"
             leftIcon={<FiSave />}

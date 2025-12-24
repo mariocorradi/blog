@@ -9,17 +9,18 @@ import {
   Center,
   Spinner
 } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import Navbar from '@/components/Navbar'
 import PostCard from '@/components/PostCard'
 import { getPosts, getCategories } from '@/lib/data'
 import CategoryFilter from '@/components/CategoryFilter'
 
-export default function Home({ searchParams }: { searchParams: any }) {
+export default function Home({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const params = use(searchParams)
   const [mounted, setMounted] = useState(false)
   const [data, setData] = useState<{ posts: any[], categories: any[] }>({ posts: [], categories: [] })
 
-  // 2. Handle the "Mounted" state
+  // Handle the "Mounted" state
   useEffect(() => {
     setMounted(true)
 
@@ -40,8 +41,8 @@ export default function Home({ searchParams }: { searchParams: any }) {
     )
   }
 
-  // 3. Logic for filtering (moved inside the component)
-  const selectedCategory = searchParams?.category
+  // Logic for filtering
+  const selectedCategory = params?.category
   const filteredPosts = selectedCategory
     ? data.posts.filter(
       (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()

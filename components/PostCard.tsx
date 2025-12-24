@@ -8,7 +8,7 @@ import {
   LinkBox,
   LinkOverlay,
 } from '@chakra-ui/react'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { Post } from '@/types'
 
 interface PostCardProps {
@@ -61,9 +61,9 @@ export default function PostCard({ post }: PostCardProps) {
       </Badge>
 
       <Heading size="md" mb={2} fontWeight="600" lineHeight="1.3">
-        <Link href={`/post/${post.slug}`} passHref legacyBehavior>
-          <LinkOverlay>{post.title}</LinkOverlay>
-        </Link>
+        <LinkOverlay as={NextLink} href={`/post/${post.slug}`}>
+          {post.title}
+        </LinkOverlay>
       </Heading>
 
       <Text color="gray.600" fontSize="sm" mb={4} lineHeight="1.6">

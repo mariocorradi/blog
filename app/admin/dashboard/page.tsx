@@ -25,7 +25,7 @@ import {
   Spinner,
   Center,
 } from '@chakra-ui/react'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi'
 import AdminLayout from '@/components/AdminLayout'
 import { Post } from '@/types'
@@ -109,11 +109,9 @@ export default function DashboardPage() {
           <Heading size="lg" fontWeight="600">
             Posts
           </Heading>
-          <Link href="/admin/editor" passHref>
-            <Button colorScheme="gray" leftIcon={<FiPlus />}>
-              New Post
-            </Button>
-          </Link>
+          <Button as={NextLink} href="/admin/editor" colorScheme="gray" leftIcon={<FiPlus />}>
+            New Post
+          </Button>
         </HStack>
 
         {isLoading ? (
@@ -132,11 +130,9 @@ export default function DashboardPage() {
             <Text color="gray.500" mb={4}>
               No posts yet
             </Text>
-            <Link href="/admin/editor" passHref>
-              <Button colorScheme="gray" leftIcon={<FiPlus />}>
-                Create your first post
-              </Button>
-            </Link>
+            <Button as={NextLink} href="/admin/editor" colorScheme="gray" leftIcon={<FiPlus />}>
+              Create your first post
+            </Button>
           </Box>
         ) : (
           <Box
@@ -169,16 +165,15 @@ export default function DashboardPage() {
                     </Td>
                     <Td>
                       <HStack spacing={2}>
-                        <Link href={`/admin/editor/${post.id}`} passHref>
-                          <Button
-                            as="a"
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="blue"
-                          >
-                            <FiEdit2 />
-                          </Button>
-                        </Link>
+                        <Button
+                          as={NextLink}
+                          href={`/admin/editor/${post.id}`}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="blue"
+                        >
+                          <FiEdit2 />
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
